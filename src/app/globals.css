@@ -2,3 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (max-width-400px){
+    #card{
+        width: 300px;
+    }
+}
+
+::-webkit-scrollbar{
+    display: none;
+}
+
+
+#category-item{
+    scrollbar-color: red;
+    
+}
+
+#category{
+    scrollbar-color: red;
+    
+    ::-webkit-scrollbar{
+        display: block;
+    }
+}
+

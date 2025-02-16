@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String   @id @default(cuid())
+  email    String   @unique
+  name     String?
+  password String
+  token    String
+  userRole Role     @default(BUYER)
+  Order    Order[]
+  Seller   Seller?
+  Review   Review[]
+  upiIds   Upi[]
+}
+
+model Upi{
+  user User @relation(fields: [userId],references: [id])
+  userId String
+  value String
+  @@unique([userId,value])
+}
+
+model Seller {
+  id           String     @id @default(uuid()) @unique
+  storename    String
+  address      String
+  phone_number String
+  user         User       @relation(fields: [id], references: [id])
+  products     Products[]
+}
+
+model Products {
+  id          String      @id @default(cuid())
+  tittle      String
+  description String
+  price       String
+  quantity    Int
+  seller      Seller      @relation(fields: [sellerid], references: [id])
+  sellerid    String
+  OrderItem   OrderItem[]
+  Review      Review[]
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  buyer      User        @relation(fields: [buyer_id], references: [id])
+  buyer_id   String
+  order_date DateTime
+  total      String
+  order_item OrderItem[]
+  Payment    Payment?
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  order      Order    @relation(fields: [orderid], references: [id])
+  orderid    String
+  product    Products @relation(fields: [product_id], references: [id])
+  product_id String
+  quantity   Int
+  price      String
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  order         Order         @relation(fields: [orderid], references: [id])
+  orderid       String        @unique
+  paymentMethod PaymentMethod
+  paymentDate   DateTime
+  amount        String
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  product    Products @relation(fields: [productid], references: [id])
+  productid  String
+  buyer      User     @relation(fields: [buyerid], references: [id])
+  buyerid    String
+  reviewDate DateTime
+  rating     Int
+  comment String
+}
+
+enum Role {
+  SELLER
+  BUYER
+}
+
+enum PaymentMethod {
+  ONLINE
+  OFFLINE
+}
